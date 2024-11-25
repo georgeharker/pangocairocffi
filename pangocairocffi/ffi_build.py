@@ -11,11 +11,18 @@ from pathlib import Path
 
 from cffi import FFI
 
-
 sys.path.append(str(Path(__file__).parent))
 
+
+api_mode = False
+if ('PANGOCAIROCFFI_API_MODE' in os.environ and
+        int(os.environ['PANGOCAIROCFFI_API_MODE']) == 1):
+    # Allow explicit disable of api_mode
+    api_mode = True
+
 # Create an empty _generated folder if needed
-(Path(__file__).parent / '_generated').mkdir(exist_ok=True)
+if not api_mode:
+    (Path(__file__).parent / '_generated').mkdir(exist_ok=True)
 
 # Read the CFFI definitions
 c_definitions_cairo_file = open(
@@ -34,7 +41,6 @@ ffi = FFI()
 
 if ('PANGOCFFI_API_MODE' in os.environ and
         int(os.environ['PANGOCFFI_API_MODE']) == 1):
-    print("PG")
     from pangocffi import ffi_build as ffi_pango
     ffi.include(ffi_pango.ffi)
 else:
@@ -50,8 +56,7 @@ else:
 
 ffi.cdef(c_definitions_pangocairo)
 
-if ('PANGOCAIROCFFI_API_MODE' in os.environ and
-        int(os.environ['PANGOCAIROCFFI_API_MODE']) == 1):
+if api_mode:
     ffi.set_source_pkgconfig(
         '_pangocairocffi',
         ['pangocairo', 'pango', 'glib-2.0'],
