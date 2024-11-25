@@ -34,8 +34,9 @@ ffi = FFI()
 
 if ('PANGOCFFI_API_MODE' in os.environ and
         int(os.environ['PANGOCFFI_API_MODE']) == 1):
-    from pangocffi.ffi_build import ffi as ffi_pango
-    ffi.include(ffi_pango)
+    print("PG")
+    from pangocffi import ffi_build as ffi_pango
+    ffi.include(ffi_pango.ffi)
 else:
     from pangocffi import ffi as ffi_pango
     ffi.include(ffi_pango)
@@ -54,7 +55,7 @@ if ('PANGOCAIROCFFI_API_MODE' in os.environ and
     ffi.set_source_pkgconfig(
         '_pangocairocffi',
         ['pangocairo', 'pango', 'glib-2.0'],
-        """
+        r"""
         #include "glib.h"
         #include "glib-object.h"
         #include "pango/pango.h"
@@ -62,13 +63,34 @@ if ('PANGOCAIROCFFI_API_MODE' in os.environ and
         #include "cairo-pdf.h"
         #include "cairo-svg.h"
         #include "cairo-ps.h"
+        #if defined(__APPLE__)
         #include "cairo-quartz.h"
+        #endif
 
         #include "xcb/xproto.h"
         #include "xcb/xcb.h"
         #include "xcb/xcbext.h"
         #include "xcb/render.h"
         #include "cairo-xcb.h"
+
+        /* Deal with some newer definitions for compatibility */
+        #if CAIRO_VERSION < 11702
+        #define CAIRO_FORMAT_RGBA128F 7
+        #define CAIRO_FORMAT_RGB96F 6
+        #endif
+        #if CAIRO_VERSION < 11800
+        #include <stdio.h>
+        #include <stdbool.h>
+        void cairo_set_hairline(cairo_t*, cairo_bool_t);
+        cairo_bool_t cairo_get_hairline(cairo_t*);
+        void cairo_set_hairline(cairo_t*, cairo_bool_t) {
+            fprintf(stderr, "Unimplemented!!\n");
+        }
+        cairo_bool_t cairo_get_hairline(cairo_t*) {
+            fprintf(stderr, "Unimplemented!!\n");
+            return false;
+        }
+        #endif
         """,
         sources=[]
     )
