@@ -42,7 +42,7 @@ else:
 
 if ('CAIROCFFI_API_MODE' in os.environ and
         int(os.environ['CAIROCFFI_API_MODE']) == 1):
-    from cairocffi.ffi import ffi as ffi_cairo
+    from cairocffi.ffi_build import ffi as ffi_cairo
     ffi.include(ffi_cairo)
 else:
     ffi.cdef(c_definitions_cairo)
