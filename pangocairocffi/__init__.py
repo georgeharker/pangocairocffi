@@ -15,18 +15,12 @@ import cairocffi
 
 
 api_mode = True
-if ('PANGOCAIROCFFI_API_MODE' in os.environ and
-        int(os.environ['PANGOCAIROCFFI_API_MODE']) == 0):
-    # Allow explicit disable of api_mode
+try:
+    from _pangocairocffi import ffi
+    from _pangocairocffi import lib as pangocairo
+    api_mode = True
+except ImportError:
     api_mode = False
-
-if api_mode:
-    try:
-        from _pangocairocffi import ffi
-        from _pangocairocffi import lib as pangocairo
-        api_mode = True
-    except ImportError:
-        api_mode = False
 
 # Fall back to non api mode
 if not api_mode:

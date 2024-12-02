@@ -8,6 +8,8 @@
 import os
 import sys
 from pathlib import Path
+from warnings import warn
+
 
 from cffi import FFI
 
@@ -39,20 +41,37 @@ c_definitions_pangocairo = c_definitions_pangocairo_file.read()
 # cffi definitions, in the order outlined in:
 ffi = FFI()
 
-if ('PANGOCFFI_API_MODE' in os.environ and
-        int(os.environ['PANGOCFFI_API_MODE']) == 1):
+xcffib_available = False
+try:
+    from xcffib.ffi_build import ffi as xcb_ffi
+except ImportError:
+    warn("xcfiib not available")
+else:
+    xcffib_available = True
+
+pangocffi_api_mode = False
+try:
     from pangocffi import ffi_build as ffi_pango
     ffi.include(ffi_pango.ffi)
-else:
+    pangocffi_api_mode = True
+except ImportError:
     from pangocffi import ffi as ffi_pango
     ffi.include(ffi_pango)
+    if api_mode:
+        warn("pangocffi is not available in API mode, disabling API mode")
+        api_mode = False
 
-if ('CAIROCFFI_API_MODE' in os.environ and
-        int(os.environ['CAIROCFFI_API_MODE']) == 1):
+cairocffi_api_mode = False
+try:
     from cairocffi.ffi_build import ffi as ffi_cairo
     ffi.include(ffi_cairo)
-else:
+    cairocffi_api_mode = True
+except ImportError:
     ffi.cdef(c_definitions_cairo)
+    if api_mode:
+        warn("cairocffi is not available in API mode, disabling API mode")
+        api_mode = False
+
 
 ffi.cdef(c_definitions_pangocairo)
 
@@ -68,16 +87,18 @@ if api_mode:
         #include "cairo-pdf.h"
         #include "cairo-svg.h"
         #include "cairo-ps.h"
-        #if defined(__APPLE__)
-        #include "cairo-quartz.h"
+        #if defined(_WIN64) || defined(_WIN32)
+        #include "cairo-win32.h"
         #endif
-
-        #include "xcb/xproto.h"
+        """ +
+        (r"""
         #include "xcb/xcb.h"
+        #include "xcb/xproto.h"
         #include "xcb/xcbext.h"
         #include "xcb/render.h"
         #include "cairo-xcb.h"
-
+        """ if xcffib_available else "") +
+        r"""
         /* Deal with some newer definitions for compatibility */
         #if CAIRO_VERSION < 11702
         #define CAIRO_FORMAT_RGBA128F 7
