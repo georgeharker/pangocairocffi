@@ -6,7 +6,7 @@
 """
 
 import sys
-from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
+from setuputils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
 from pathlib import Path
 from warnings import warn
 
