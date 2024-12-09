@@ -39,7 +39,7 @@ def ffi_for_mode(mode):
     ffi.include(pango_ffi)
 
     from cairocffi.ffi_build import ffi_for_mode as cairo_ffi_for_mode
-    from cairocffi.ffi_build import c_source_cairo, c_source_cairo_compat
+    from cairocffi.ffi_build import c_source_cairo
     cairo_ffi = cairo_ffi_for_mode(mode)
     ffi.include(cairo_ffi)
 
@@ -55,7 +55,7 @@ def ffi_for_mode(mode):
             #include "glib-object.h"
             #include "pango/pango.h"
             #include "pango/pangocairo.h"
-            """ + c_source_cairo_compat,
+            """,
             sources=[]
         )
 
