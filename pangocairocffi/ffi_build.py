@@ -34,12 +34,10 @@ def ffi_for_mode(mode):
     # cffi definitions, in the order outlined in:
     ffi = FFI()
 
-    from pangocffi import cffi_mode as pango_cffi_mode
     from pangocffi.ffi_build import ffi_for_mode as pango_ffi_for_mode
     pango_ffi = pango_ffi_for_mode(mode)
     ffi.include(pango_ffi)
 
-    from cairocffi import cffi_mode as cairo_cffi_mode
     from cairocffi.ffi_build import ffi_for_mode as cairo_ffi_for_mode
     from cairocffi.ffi_build import c_source_cairo, c_source_cairo_compat
     cairo_ffi = cairo_ffi_for_mode(mode)
