@@ -6,7 +6,7 @@
 """
 
 import sys
-from setuptools.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
+from setuptools.errors import CCompilerError, ExecError, PlatformError
 from pathlib import Path
 from warnings import warn
 
@@ -74,7 +74,7 @@ def build_ffi():
         ffi_api = ffi_for_mode("api")
         ffi_api.compile(verbose=True)
         return ffi_api
-    except (CCompilerError, DistutilsExecError, DistutilsPlatformError,
+    except (CCompilerError, ExecError, PlatformError,
             VerificationError) as e:
         warn("Falling back to precompiled python mode: {}".format(str(e)))
 
