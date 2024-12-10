@@ -5,14 +5,15 @@
     Build the cffi bindings
 """
 
+import shutil
 import sys
-from setuptools.errors import CCompilerError, ExecError, PlatformError
+import tempfile
 from pathlib import Path
 from warnings import warn
 
-
 from cffi import FFI
 from cffi.error import PkgConfigError, VerificationError
+from setuptools.errors import CCompilerError, ExecError, PlatformError
 
 
 sys.path.append(str(Path(__file__).parent))
@@ -47,7 +48,7 @@ def ffi_for_mode(mode):
 
     if mode == "api":
         ffi.set_source_pkgconfig(
-            '_pangocairocffi',
+            'pangocairocffi._pangocairocffi',
             ['pangocairo', 'pango', 'glib-2.0'],
             c_source_cairo +
             r"""
@@ -60,7 +61,7 @@ def ffi_for_mode(mode):
         )
 
     else:
-        ffi.set_source('_pangocairocffi', None)
+        ffi.set_source('pangocairocffi._pangocairocffi', None)
     return ffi
 
 
@@ -72,14 +73,16 @@ def build_ffi():
     """
     try:
         ffi_api = ffi_for_mode("api")
-        ffi_api.compile(verbose=True)
+        file = ffi_api.compile(verbose=True, tmpdir=tempfile.gettempdir())
+        shutil.copy(file, "pangocairocffi")
         return ffi_api
     except (CCompilerError, ExecError, PlatformError,
             PkgConfigError, VerificationError) as e:
         warn("Falling back to precompiled python mode: {}".format(str(e)))
 
         ffi_abi = ffi_for_mode("abi")
-        ffi_abi.compile(verbose=True)
+        file = ffi_abi.compile(verbose=True, tmpdir=tempfile.gettempdir())
+        shutil.copy(file, "pangocairocffi")
         return ffi_abi
 
 

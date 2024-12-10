@@ -18,12 +18,12 @@ import cairocffi
 cffi_mode = "(unknown)"
 try:
     # Note in ABI mode lib is already available, no dlopen() needed
-    from _pangocairocffi import ffi, lib as pangocairo
+    from ._pangocairocffi import ffi, lib as pangocairo
     cffi_mode = "api"
 except ImportError:
     try:
         # Note in ABI mode lib will be missing
-        from _pangocffi import ffi
+        from ._pangocffi import ffi
         cffi_mode = "abi_precompiled"
     except ImportError:
         # Fall back to importing and parsing cffi defs
